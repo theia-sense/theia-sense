@@ -1,0 +1,14 @@
+# FastAPI framework and server
+fastapi
+uvicorn[standard]
+
+# For handling file uploads
+python-multipart
+
+# For testing
+pytest
+httpx
+ruff
+
+# Local Packages
+-e ../../packages/ml-models

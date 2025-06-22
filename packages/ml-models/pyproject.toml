@@ -1,0 +1,15 @@
+# packages/ml-models/pyproject.toml
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ml-models"
+version = "0.1.0"
+authors = [
+  { name="Rutansh Suthar", email="rutanshsuthar4u@gmail.com" },
+  { name="Aditya Patel", email="iamadityapatel149@gmail.com"},
+]
+description = "A shared package for ML models and services."
+requires-python = ">=3.10"
