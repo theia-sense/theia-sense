@@ -7,7 +7,7 @@ class AnnotationResponse(BaseModel):
     """
     filename: str
     content_type: str | None = None
-    labels: List[str] = Field(..., example=["cat", "person"])
+    labels: List[str] = Field(..., json_schema_extra=["cat", "person"])
 
 class HealthCheckResponse(BaseModel):
     """
