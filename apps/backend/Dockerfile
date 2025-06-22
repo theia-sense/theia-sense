@@ -7,10 +7,10 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 COPY ./apps/backend/requirements.txt .
-COPY ./packages/ml-models ./packages/ml-models
+RUN pip wheel --no-cache-dir --wheel-dir /usr/src/app/wheels -r requirements.txt
 
-RUN sed -i 's|-e ../../packages/ml-models|-e ./packages/ml-models|g' requirements.txt && \
-    pip wheel --no-cache-dir --wheel-dir /usr/src/app/wheels -r requirements.txt
+COPY ./packages/ml-models ./packages/ml-models
+RUN pip wheel --no-cache-dir --wheel-dir /usr/src/app/wheels -e ./packages/ml-models
 
 # --- Final Stage ---
 FROM python:3.12-slim

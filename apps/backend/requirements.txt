@@ -9,6 +9,3 @@ python-multipart
 pytest
 httpx
 ruff
-
-# Local Packages
--e ../../packages/ml-models
