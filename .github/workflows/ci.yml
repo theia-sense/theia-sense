@@ -128,7 +128,7 @@ jobs:
       - name: Test Docker Compose Configuration
         run: |
           echo "Testing Docker Compose setup..."
-          docker-compose -f compose.yml config
+          docker compose -f compose.yml config
           echo "Docker Compose configuration is valid"
       
       - name: Run Integration Tests
