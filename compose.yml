@@ -1,0 +1,56 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: ./apps/backend/Dockerfile
+      args:
+        ML_SERVICE_URL_ARG: "http://ml-service:8001/annotate/"
+    container_name: theia-backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      ml-service:
+        condition: service_healthy
+    environment:
+      - ML_SERVICE_URL=http://ml-service:8001/annotate/
+    networks:
+      - theia-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+  ml-service:
+    build:
+      context: .
+      dockerfile: ./apps/ml-service/Dockerfile
+    container_name: theia-ml-service
+    ports:
+      - "8001:8001"
+    environment:
+      - LOG_LEVEL=INFO
+      - HF_HOME=/code/.hf_cache
+    networks:
+      - theia-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '4'
+    #       memory: 4G
+    #     reservations:
+    #       cpus: '1'
+    #       memory: 2G
+    
+networks:
+  theia-net:
+    driver: bridge
+    name: theia-net

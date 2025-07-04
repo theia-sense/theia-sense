@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+python-multipart
+Pillow
+
+# Dependencies for the CLIP model
+onnxruntime
+numpy
+transformers

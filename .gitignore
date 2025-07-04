@@ -1,5 +1,12 @@
 # Python
 __pycache__/
-*.pyc
 .env
 .venv
+.pytest_cache
+
+# VS Code
+.vscode/
+
+# Custom
+convert_to_onnx.py
+onnx_models

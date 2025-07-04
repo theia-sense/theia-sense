@@ -1,66 +1,82 @@
+import os
 from typing import List
+import httpx
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from ml_models.services import ml_service
 from . import schemas
+
+ML_SERVICE_URL = os.getenv("ML_SERVICE_URL", "http://localhost:8001/annotate/")
 
 app = FastAPI(
     title="Theia API",
     version="0.1.0",
+    description="Backend service to handle image uploads and communicate with the ML service for annotation.",
 )
-
-origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-@app.post("/annotate/", response_model=List[schemas.AnnotationResponse])
-async def create_upload_file(files: List[UploadFile] = File(...)):
-    """
-    Accepts one or more image files, processes them with a mock ML model,
-    and returns the predicted labels for each image.
+@app.get("/", tags=["Health Check"])
+async def read_root():
+    """A simple endpoint to check if the API is running."""
+    return {"status": "Backend API is running!"}
 
-    - **file**: A list of image file to be uploaded. Must be in a common format
-                like JPEG or PNG.
+
+@app.post("/predict/", response_model=List[schemas.BackendResponse], tags=["Image Processing"])
+async def create_upload_files(files: List[UploadFile] = File(...)):
+    """
+    Receives multiple image files, sends them one by one to the ML service,
+    and returns the annotation results for each image.
+
+    Args:
+        files (List[UploadFile]): A list of images uploaded by the user.
+
+    Returns:
+        List[schemas.BackendResponse]: A list of objects, each containing the
+                                       filename and the tags returned by the ML service.
     """
     results = []
-    for file in files:
-        if not file.content_type or not file.content_type.startswith("image/"):
-            raise HTTPException(
-                status_code=400,
-                detail=f"File '{file.filename}' is not a valid image."
-            )
+    async with httpx.AsyncClient() as client:
+        for file in files:
+            if not file.content_type or not file.content_type.startswith("image/"):
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"File '{file.filename}' is not a valid image type."
+                )
 
-        try:
-            contents = await file.read()
-            labels = await ml_service.annotate_image(contents)
-            results.append({
-                "filename": file.filename,
-                "content_type": file.content_type,
-                "labels": labels
-            })
-        except Exception as e:
-            raise HTTPException(
-                status_code=500,
-                detail=f"An error occurred while processing {file.filename}: {e}"
-            )
-        finally:
-            await file.close()
+            try:
+                contents = await file.read()
 
-    if not results:
-        raise HTTPException(
-            status_code=400,
-            detail="No files were processed successfully."
-        )
-    
+                files_to_send = {'file': (file.filename, contents, file.content_type)}
+                
+                response = await client.post(ML_SERVICE_URL, files=files_to_send, timeout=60.0)
+
+                response.raise_for_status()
+
+                ml_response_data = response.json()
+                results.append(schemas.BackendResponse(
+                    filename=ml_response_data.get("filename"),
+                    tags=ml_response_data.get("tags")
+                ))
+
+            except httpx.HTTPStatusError as e:
+                raise HTTPException(
+                    status_code=e.response.status_code,
+                    detail=f"Error from ML service for file {file.filename}: {e.response.text}",
+                )
+            except httpx.RequestError as e:
+                raise HTTPException(
+                    status_code=503,
+                    detail=f"Could not connect to the ML service for file {file.filename}: {str(e)}",
+                )
+            except Exception as e:
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"An unexpected error occurred while processing {file.filename}: {str(e)}",
+                )
     return results
-
-@app.get("/", response_model=schemas.HealthCheckResponse)
-def read_root():
-    """A simple health check endpoint."""
-    return {"status": "ok", "message": "Welcome to the API!"}
