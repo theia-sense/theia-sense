@@ -2,7 +2,6 @@ import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import patch, MagicMock
 import numpy as np
-import onnxruntime as ort
 import io
 from PIL import Image
 

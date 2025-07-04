@@ -4,7 +4,7 @@ import io
 import numpy as np
 import onnxruntime as ort
 from transformers import CLIPProcessor
-from typing import List, Dict, Any
+from typing import Dict, Any
 from fastapi.middleware.cors import CORSMiddleware
 from . import schemas
 from contextlib import asynccontextmanager
@@ -146,7 +146,7 @@ async def annotate_image_endpoint(file: UploadFile = File(...)):
         logger.warning(f"Image processing error for {file.filename}: {e}")
         raise HTTPException(
             status_code=422,
-            detail=f"Failed to process image. It may be corrupt or in an unsupported format."
+            detail="Failed to process image. It may be corrupt or in an unsupported format."
         )
     
     except Exception as e:
