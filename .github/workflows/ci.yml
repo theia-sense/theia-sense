@@ -125,6 +125,11 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest requests pillow
+
       - name: Test Docker Compose Configuration
         run: |
           echo "Testing Docker Compose setup..."
