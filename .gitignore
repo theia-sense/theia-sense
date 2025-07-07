@@ -6,6 +6,7 @@ __pycache__/
 
 # VS Code
 .vscode/
+.vs
 
 # Custom
 convert_to_onnx.py

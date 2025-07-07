@@ -10,3 +10,4 @@ class BackendResponse(BaseModel):
     
     filename: str = Field(..., description="The name of the uploaded image file.", json_schema_extra={"example": "image1.jpg"})
     tags: Optional[List[str]] = Field(None, description="A list of tags classifying the image content.", json_schema_extra={"example": ["nature", "sky", "tree"]})
+    score: Optional[float] = Field(None, description="The aesthetic score for the image content.", json_schema_extra={"example": 4.567})
