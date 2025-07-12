@@ -19,6 +19,16 @@ export default function useUploadImages() {
         setImagesToUpload((prev) => [...prev, ...wrappedFiles]);
     }, []);
 
+    const removeFile = useCallback((fileName) => {
+        if (!fileName) {
+            setImagesToUpload([]);
+        }
+        else {
+            setImagesToUpload((prev) => prev.filter(({ file }) => file.name !== fileName)
+            );
+        }
+    }, []);
+
     const uploadImages = async () => {
         if (!imagesToUpload.length) return alert("No files selected.");
 
@@ -76,7 +86,7 @@ export default function useUploadImages() {
 
     return {
         state: { imagesToUpload, curatedImages, isUploading },
-        actions: { addFiles, uploadImages }
+        actions: { addFiles, removeFile, uploadImages }
     };
 }
 

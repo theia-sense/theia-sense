@@ -1,20 +1,58 @@
-import React from "react"
+import React from "react";
+import JSZip from "jszip";
+import { FaDownload } from "react-icons/fa";
+import styles from "./ImageGallery.module.css";
 
 export default function ImageGallery({ images }) {
 	if (!images?.length) return null;
 
-	return (
-		<div>
-			<h3>Best Images</h3>
-			<div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-				{
-					images.map(({ uuidName, originalName, url, tags, score }) => (
-						<div key={uuidName} style={{ textAlign: "center" }}>
-							<img src={url} alt={originalName} style={{ width: "200px", height: "200px", objectFit: "cover" }} />
-							<div style={{ fontSize: "0.75rem", marginTop: "4px" }}><strong>Score:</strong> {score.toFixed(2)} {originalName}</div>
-						</div>
-					))
+	const handleDownloadZip = async () => {
+		const zip = new JSZip();
+		const folder = zip.folder("best-images");
+
+		await Promise.all(
+			images.map(async ({ uuidName, originalName, url }) => {
+				try {
+					const response = await fetch(url);
+					const blob = await response.blob();
+					const filename = originalName || `${uuidName}.jpg`;
+					folder.file(filename, blob);
+				} catch (err) {
+					console.error(`Failed to download image: ${url}`, err);
 				}
+			})
+		);
+
+		const zipBlob = await zip.generateAsync({ type: "blob" });
+		const zipUrl = URL.createObjectURL(zipBlob);
+
+		const a = document.createElement("a");
+		a.href = zipUrl;
+		a.download = "best-images.zip";
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+
+		URL.revokeObjectURL(zipUrl);
+	};
+
+	return (
+		<div className={styles.wrapper }>
+			<div className={styles.header}>
+			<h2>Best Images</h2>
+			<button className={styles.downloadButton} onClick={handleDownloadZip}>
+				<FaDownload />
+				</button>
+			</div>
+			<div className={styles.container}>
+				{images.map(({ uuidName, originalName, url, score }) => (
+					<div key={uuidName} className={styles.imageWrapper}>
+						<img src={url} alt={originalName} className={styles.image} />
+						<div className={styles.score}>
+							<strong>Score:</strong> {score.toFixed(2)}
+						</div>
+					</div>
+				))}
 			</div>
 		</div>
 	);

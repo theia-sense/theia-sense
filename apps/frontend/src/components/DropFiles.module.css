@@ -1,0 +1,54 @@
+.dropArea {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #d0d7de;
+    background: linear-gradient(145deg, #ffffff, #f3f4f6);
+    padding: 2rem 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    text-align: center;
+    transition: all 0.25s ease;
+}
+
+.dragActive {
+    border-color: #0d6efd;
+    background: linear-gradient(145deg, #ffffff, #f0f8ff);
+    box-shadow: 0 0 8px rgba(13, 110, 253, 0.2), 0 0 16px rgba(13, 110, 253, 0.15), 0 0 24px rgba(13, 110, 253, 0.1);
+    transition: box-shadow 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
+}
+
+
+.icon {
+    font-size: 3rem;
+    color: #0d6efd;
+}
+
+.text {
+    font-size: 1.2rem;
+    color: #333;
+    font-weight: 400;
+    margin-bottom: 1rem;
+}
+
+.fileInput {
+    display: none;
+}
+
+.fileLabel {
+    color: #0d6efd;
+    padding: 0.75rem 1.75rem;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    border: 1px solid transparent; /* Always reserve space for border */
+    transition: border-color 0.3s ease;
+    user-select: none;
+    cursor: pointer;
+}
+
+    .fileLabel:hover {
+        border-color: #0d6efd;
+
+    }

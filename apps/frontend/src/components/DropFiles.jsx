@@ -1,8 +1,34 @@
-import React from "react";
+import React, { useState, useRef } from "react";
+import styles from "./DropFiles.module.css";
+import { FiUploadCloud } from "react-icons/fi";
 
 export default function DropFiles({ onFilesAdded }) {
+    const [isDragging, setIsDragging] = useState(false);
+    const dragCounter = useRef(0);
+
+    const handleDragEnter = (e) => {
+        e.preventDefault();
+        dragCounter.current += 1;
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        dragCounter.current -= 1;
+        if (dragCounter.current === 0) {
+            setIsDragging(false);
+        }
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+    };
+
     const handleDrop = (e) => {
         e.preventDefault();
+        setIsDragging(false);
+        dragCounter.current = 0;
+
         const droppedFiles = e.dataTransfer?.files;
         if (droppedFiles?.length) {
             const filteredFiles = filterSupportedImages(Array.from(droppedFiles));
@@ -31,17 +57,17 @@ export default function DropFiles({ onFilesAdded }) {
 
     return (
         <div
+            className={`${styles.dropArea} ${isDragging ? styles.dragActive : ""}`}
             onDrop={handleDrop}
-            onDragOver={(e) => e.preventDefault()}
-            style={{
-                border: "2px dashed #ccc",
-                padding: "24px",
-                marginBottom: "24px",
-                textAlign: "center",
-                cursor: "pointer"
-            }}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDragOver={handleDragOver}
         >
-            <p>Drag & drop supported images here, or click below</p>
+            <FiUploadCloud className={styles.icon} />
+            <p className={styles.text}>
+                Drag and drop image files here, or click below to browse your device.
+            </p>
+
 
             <input
                 id="fileInput"
@@ -49,11 +75,11 @@ export default function DropFiles({ onFilesAdded }) {
                 multiple
                 accept=".jpg,.jpeg,.png,.webp,.bmp,.gif"
                 onChange={handleInputChange}
-                style={{ display: "none" }}
+                className={styles.fileInput}
             />
 
-            <label htmlFor="fileInput" style={{ color: "blue", cursor: "pointer" }}>
-                Select Images
+            <label htmlFor="fileInput" className={styles.fileLabel}>
+                Browse Files
             </label>
         </div>
     );

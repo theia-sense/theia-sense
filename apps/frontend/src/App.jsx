@@ -1,32 +1,39 @@
 import './App.css'
 import DropFiles from "./components/DropFiles"
 import ImageGallery from "./components/ImageGallery"
+import Sidebar from './components/Sidebar';
 import useUploadImages from './hooks/useUploadImages'
 
 function App() {
 
     const {
-        state: { imagesToUpload, curatedImages, isUploading }, 
-        actions: { addFiles, uploadImages }
+        state: { imagesToUpload, curatedImages, isUploading}, 
+        actions: { addFiles, removeFile, uploadImages }
     } = useUploadImages();
 
     return (
-        <div style={{ maxWidth: "1600px", margin: "0 auto", padding: "24px" }}>
+        <div className="appContainer">
+            <header className="appHeader">
+                <h1>Theia Sense</h1>
+            </header>
 
-            <h1>Image Culling App</h1>
+            <div className="appLayout">
+                <Sidebar images={imagesToUpload} onFilesRemoved={removeFile} isUploading={isUploading} />
+                <main className="mainContent">
+                    <DropFiles onFilesAdded={addFiles} />
+                    <button
+                        onClick={uploadImages}
+                        disabled={isUploading || imagesToUpload.length === 0}
+                        className="uploadButton"
+                    >
+                        {isUploading ? "Uploading..." : `Upload ${imagesToUpload.length} Image(s)`}
+                    </button>
 
-            <DropFiles onFilesAdded={addFiles} />
-            <button
-                onClick={uploadImages}
-                disabled={isUploading || imagesToUpload.length === 0}
-                style={{ padding: "12px 24px", margin: "12px 0" }}>
-                {isUploading ? "Uploading..." : `Upload ${imagesToUpload.length} Image(s)`}
-            </button>
-
-            <ImageGallery images={curatedImages} />
-
+                    <ImageGallery images={curatedImages} />
+                </main>
+            </div>
         </div>
-    )
+    );
 }
 
 export default App
