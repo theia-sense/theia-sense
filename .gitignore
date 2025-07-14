@@ -11,5 +11,6 @@ __pycache__/
 # Custom
 convert_to_onnx.py
 onnx_models
+misc
 
 node_modules

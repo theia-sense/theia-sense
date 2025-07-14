@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: ./apps/backend/Dockerfile
       args:
-        ML_SERVICE_URL_ARG: "http://ml-service:8001/annotate/"
+        ML_SERVICE_URL: "http://ml-service:8001"
     container_name: theia-backend
     ports:
       - "8000:8000"
@@ -12,7 +12,7 @@ services:
       ml-service:
         condition: service_healthy
     environment:
-      - ML_SERVICE_URL=http://ml-service:8001/annotate/
+      - ML_SERVICE_URL=http://ml-service:8001
     networks:
       - theia-net
     healthcheck:
@@ -41,14 +41,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
-    # deploy:
-    #   resources:
-    #     limits:
-    #       cpus: '4'
-    #       memory: 4G
-    #     reservations:
-    #       cpus: '1'
-    #       memory: 2G
 
 
   frontend:

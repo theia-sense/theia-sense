@@ -14,8 +14,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY ./apps/backend/app ./app
 
-ARG ML_SERVICE_URL_ARG="http://ml-service:8001/annotate/"
-ENV ML_SERVICE_URL=${ML_SERVICE_URL_ARG}
+ARG ML_SERVICE_URL="http://ml-service:8001"
+ENV ML_SERVICE_URL=${ML_SERVICE_URL}
 
 RUN useradd -m appuser && \
     chown -R appuser:appuser /code

@@ -4,9 +4,14 @@ import httpx
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio
+import logging
 from . import schemas
 
-ML_SERVICE_URL = os.getenv("ML_SERVICE_URL", "http://localhost:8001/annotate/")
+ML_SERVICE_BASE_URL = os.getenv("ML_SERVICE_URL", "http://localhost:8001")
+
+ML_SERVICE_URL_ANNOTATE = f"{ML_SERVICE_BASE_URL}/annotate/"
+ML_SERVICE_URL_THRESHOLD = f"{ML_SERVICE_BASE_URL}/threshold/"
+
 BATCH_SIZE = 64
 
 app = FastAPI(
@@ -69,7 +74,7 @@ async def create_upload_files(files: List[UploadFile] = File(...)):
         try:
             files_to_send = [("files", (filename, content, content_type)) for filename,content, content_type in batch]
             async with httpx.AsyncClient() as client:
-                response = await client.post(ML_SERVICE_URL, files=files_to_send, timeout=60.0)
+                response = await client.post(ML_SERVICE_URL_ANNOTATE, files=files_to_send, timeout=300)
                 response.raise_for_status()
                 data= response.json()
 
@@ -101,5 +106,35 @@ async def create_upload_files(files: List[UploadFile] = File(...)):
     # Process all batches concurrently
     all_results = await asyncio.gather(*[process_batch(batch) for batch in batches])
 
-    # Flatten the list of lists
-    return [result for batch_result in all_results for result in batch_result]
+    flattened_results = [result for batch_result in all_results for result in batch_result]
+    try:
+        input_data = [
+            {
+                "filename": res.filename, 
+                "tags": res.tags, 
+                "score": res.score
+            } 
+            for res in flattened_results
+        ]
+        
+        async with httpx.AsyncClient() as client:
+            threshold_response = await client.post(
+                ML_SERVICE_URL_THRESHOLD, 
+                json=input_data, 
+                timeout=300.0,
+                headers={"Content-Type": "application/json"}
+            )
+            threshold_response.raise_for_status()
+            threshold_data = threshold_response.json()
+        
+        return [
+            schemas.BackendResponse(
+                filename=item["filename"],
+                tags=item["tags"], 
+                score=item["score"]
+            ) for item in threshold_data
+        ]
+        
+    except (httpx.HTTPStatusError, httpx.RequestError, Exception) as e:
+        logging.warning(f"Threshold Filtering Failed: {str(e)}")
+        return flattened_results
