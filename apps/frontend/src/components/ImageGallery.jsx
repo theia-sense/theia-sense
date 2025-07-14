@@ -45,9 +45,9 @@ export default function ImageGallery({ images }) {
 				</button>
 			</div>
 			<div className={styles.container}>
-				{images.map(({ uuidName, originalName, url, score }) => (
+				{images.map(({ uuidName, originalName, thumbnailUrl, score }) => (
 					<div key={uuidName} className={styles.imageWrapper}>
-						<img src={url} alt={originalName} className={styles.image} />
+						<img src={thumbnailUrl} alt={originalName} className={styles.image} />
 						<div className={styles.score}>
 							<strong>Score:</strong> {score.toFixed(2)}
 						</div>

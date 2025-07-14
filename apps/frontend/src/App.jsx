@@ -26,7 +26,7 @@ function App() {
                         disabled={isUploading || imagesToUpload.length === 0}
                         className="uploadButton"
                     >
-                        {isUploading ? "Uploading..." : `Upload ${imagesToUpload.length} Image(s)`}
+                        {isUploading ? "Finding your best shots..." : `Upload ${imagesToUpload.length} Image(s)`}
                     </button>
 
                     <ImageGallery images={curatedImages} />

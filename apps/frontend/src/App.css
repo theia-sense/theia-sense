@@ -35,10 +35,13 @@
 }
 
 .uploadButton {
+    font-size: 1.2rem;
     padding: 1rem 2rem;
     margin: 1rem 0;
     align-self: center;
-    background-color: #e6ebf0;
+    align-content: center;
+    width: min(100%, 20rem);
+    background-color: #e3e7ed;
 }
 
 .uploadButton:focus,

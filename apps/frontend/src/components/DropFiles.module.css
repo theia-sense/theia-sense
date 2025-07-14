@@ -39,7 +39,7 @@
 .fileLabel {
     color: #0d6efd;
     padding: 0.75rem 1.75rem;
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 500;
     border-radius: 8px;
     border: 1px solid transparent; /* Always reserve space for border */

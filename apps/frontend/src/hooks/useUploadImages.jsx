@@ -4,6 +4,25 @@ import Pica from "pica"
 import { v4 as uuidv4 } from "uuid";
 
 const pica = Pica()
+
+// Detect mobile and device memory
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const isAndroid = /Android/.test(navigator.userAgent);
+const isMobile = isIOS || isAndroid;
+const deviceMemoryGB = navigator.deviceMemory || 4; //fallback to 4
+
+const getBatchSize = () => {
+    if (isMobile) {
+        if (deviceMemoryGB <= 2) return 4;
+        if (deviceMemoryGB <= 4) return 6;
+        return 8;
+    } else {
+        if (deviceMemoryGB <= 4) return 8;
+        if (deviceMemoryGB <= 8) return 16;
+        return 32;
+    }
+};
+
 export default function useUploadImages() {
     const [imagesToUpload, setImagesToUpload] = useState([]);
     const [curatedImages, setCuratedImages] = useState([]);
@@ -34,17 +53,36 @@ export default function useUploadImages() {
 
         setIsUploading(true);
 
+        // Resize all images to 224x224 using Pica in batches to optimize memory usage
         try {
-            // Resize all images to 224x224 using Pica
-            const resizedImages = await Promise.all(
-                imagesToUpload.map(async ({file}) => {
-                    const imgElement = await loadImageElement(file);
-                    const resizedCanvas = await resizeWithPica(imgElement, 224, 224);
-                    return await canvasToFile(resizedCanvas, file.name)
-                })
-            );
+            const batchSize = getBatchSize();
+            const resizedImages = [];
+            const thumbnails = [];
+            for (let i = 0; i < imagesToUpload.length; i += batchSize){
+                const batch = imagesToUpload.slice(i, i + batchSize);
 
-            // Upload resized images
+                const resizedBatch = await Promise.all(
+                    batch.map(async ({ file }) => {
+                        const imgBitmap = await loadImageBitmap(file);
+                        // For backend api
+                        const resizedCanvas = await resizeWithPica(imgBitmap, 224, 224);
+                        const resizedFile = await canvasToFile(resizedCanvas, file.name);
+
+                        // Thumbnail preserving aspect ratio
+                        const thumbnailCanvas = await resizeWithAR(imgBitmap, 480);
+                        const thumbnailFile = await canvasToFile(thumbnailCanvas, file.name, "webp");
+
+                        if (imgBitmap.close) imgBitmap.close();
+
+                        return { resizedFile, thumbnailFile };
+                    })
+                );
+
+                resizedImages.push(...resizedBatch.map(item => item.resizedFile));
+                thumbnails.push(...resizedBatch.map(item => item.thumbnailFile));
+            }
+
+            // Upload resized files
             const formData = new FormData();
             resizedImages.forEach((file) => formData.append("files", file));
 
@@ -56,10 +94,12 @@ export default function useUploadImages() {
 
             const imagesWithURLs = acceptedImages.map(({file, originalName }) => {
                 const meta = result.find((item) => item.filename === file.name);
+                const thumb = thumbnails.find(t => t.name === file.name);
                 return {
                     uuidName: file.name,
                     originalName,
                     url: URL.createObjectURL(file),
+                    thumbnailUrl: URL.createObjectURL(thumb),
                     tags: meta.tags,
                     score: meta.score,
                 };
@@ -70,7 +110,7 @@ export default function useUploadImages() {
         }
         catch (error) {
             console.error("Upload failed:", error);
-            alert("Upload failed.")
+            alert(`Upload failed: ${error?.message || "Unknown error"}`);
         }
         finally {
             setIsUploading(false);
@@ -80,7 +120,10 @@ export default function useUploadImages() {
     // Cleanup blob URLs on unmount or change
     useEffect(() => {
         return () => {
-            curatedImages.forEach((img) => URL.revokeObjectURL(img.url))
+            curatedImages.forEach((img) => {
+                if (img.url) URL.revokeObjectURL(img.url);
+                if (img.thumbnailUrl) URL.revokeObjectURL(img.thumbnailUrl);
+            });
         };
     }, [curatedImages]);
 
@@ -90,8 +133,18 @@ export default function useUploadImages() {
     };
 }
 
-// Convert file to Image element
-const loadImageElement = (file) => {
+// Convert file to Image bitmap or use ImageElement as fallback if ImageBitmap not supported
+const loadImageBitmap = async (file) => {
+
+    if ("createImageBitmap" in window) {
+        try {
+            return await createImageBitmap(file);
+        }
+        catch (error) {
+            console.warn("createImageBitmap failed, falling back:", error);
+        }
+    }
+
     return new Promise((resolve, reject) => {
         const img = new Image();
         const reader = new FileReader();
@@ -115,12 +168,25 @@ const resizeWithPica = (image, width, height) => {
 };
 
 // Convert canvas to File (Blob + filename)
-const canvasToFile = (canvas, filename) => {
+const canvasToFile = (canvas, filename, format = "png") => {
     return new Promise((resolve, reject) => {
+        const mimeType = format === "webp" ? "image/webp" : "image/png";
         canvas.toBlob((blob) => {
             if (!blob) return reject(new Error("Canvas toBlob failed"));
-            const file = new File([blob], filename, { type: "image/png" });
+            const file = new File([blob], filename, { type: mimeType });
             resolve(file);
-        }, "image/png", 1.0);
+        }, mimeType, 1.0);
     });
+};
+
+const resizeWithAR = async (image, maxSize) => {
+    // .width for imagebitmap or .naturalWidth for HTMLImageElement
+    let origWidth = image.width || image.naturalWidth;
+    let origHeight = image.height || image.naturalHeight;
+
+    const scale = Math.min(maxSize / origWidth, maxSize / origHeight);
+    const w = Math.round(origWidth * scale);
+    const h = Math.round(origHeight * scale);
+
+    return await resizeWithPica(image, w, h);
 };
