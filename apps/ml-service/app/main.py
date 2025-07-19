@@ -11,20 +11,18 @@ from . import schemas
 from contextlib import asynccontextmanager
 from pathlib import Path
 import logging
-
+from .utils import load_tags_and_categories, assign_categories
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Configuration
-TAG_LIST = [
-    "building", "architecture", "urban", "car", "automobile", "tree", "park",
-    "nature", "landscape", "person", "dog", "family", "selfie", "food",
-    "tasty", "happy", "colorful", "moody", "aesthetic"
-]
-TOP_K_TAGS = 10
+CATEGORIES_JSON_PATH = Path( "config" )/ "combined_categories.json"
+TAG_LIST, TAG_TO_CATEGORIES = load_tags_and_categories(CATEGORIES_JSON_PATH)
+TOP_K_TAGS = 20
+TOP_N_CATEGORIES = 5
 BATCH_SIZE = 64
-TAG_THRESHOLD = 0.09
+TAG_THRESHOLD = 0.215 # Keep it between 0.215-0.230
 DIVERSITY_THRESHOLD = 0.95 
 
 # Model Paths
@@ -167,7 +165,7 @@ async def annotate_images_endpoint(files: List[UploadFile] = File(...)):
     return [
         schemas.AnnotationResponse(
             filename=item["filename"],
-            tags=item["tags"],
+            tags = assign_categories(item["tags"], TAG_TO_CATEGORIES, 1, TOP_N_CATEGORIES),
             score=item["score"],
         ) for item in diverse_results
     ]
@@ -200,9 +198,7 @@ def process_images_batch(img_data):
 
     aesthetic_scores = compute_aesthetic_scores(pixel_values)
 
-    logits_per_image = 100 * img_features @ tag_features.T
-    exp_logits = np.exp(logits_per_image - np.max(logits_per_image, axis=-1, keepdims=True))
-    similarity_scores = exp_logits / np.sum(exp_logits, axis=-1, keepdims=True)
+    similarity_scores = img_features @ tag_features.T
 
     results = []
     for i, scores in enumerate(similarity_scores):
@@ -255,3 +251,4 @@ def rank_diverse_results(results: List[Dict[str, Any]], top_n: int, threshold: f
         ]
 
     return diverse_results
+
