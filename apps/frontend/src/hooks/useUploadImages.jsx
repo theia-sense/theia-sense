@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect } from "react";
-import axios from "axios"
+import { useState, useCallback, useEffect, useMemo } from "react";
+import { uploadImagesToServer } from "../api/uploadAPI";
 import Pica from "pica"
 import { v4 as uuidv4 } from "uuid";
 
@@ -27,6 +27,17 @@ export default function useUploadImages() {
     const [imagesToUpload, setImagesToUpload] = useState([]);
     const [curatedImages, setCuratedImages] = useState([]);
     const [isUploading, setIsUploading] = useState(false);
+    const [selectedTags, setSelectedTags] = useState([]); // New state for tag filtering
+
+    const filteredImages = useMemo(() => {
+        if (!selectedTags.length) return curatedImages;
+        
+        return curatedImages.filter(image => 
+            selectedTags.some(selectedTag => 
+                image.tags?.includes(selectedTag)
+            )
+        );
+    }, [curatedImages, selectedTags]);
 
     const addFiles = useCallback((files) => {
         const wrappedFiles = Array.from(files).map((file) => {
@@ -86,8 +97,7 @@ export default function useUploadImages() {
             const formData = new FormData();
             resizedImages.forEach((file) => formData.append("files", file));
 
-            const res = await axios.post("http://localhost:8000/predict/", formData);
-            const result = res.data;
+           const result = await uploadImagesToServer(formData);
 
             // Match accepted filenames to images
             const acceptedImages = imagesToUpload.filter(({file}) => result.some((item)=> item.filename === file.name));
@@ -117,6 +127,16 @@ export default function useUploadImages() {
         }
     };
 
+    const filterByTags = useCallback((tags) => {
+        setSelectedTags(tags);
+    }, []);
+
+    const clearTagFilter = useCallback(() => {
+        setSelectedTags([]);
+    }, []);
+
+
+
     // Cleanup blob URLs on unmount or change
     useEffect(() => {
         return () => {
@@ -127,9 +147,25 @@ export default function useUploadImages() {
         };
     }, [curatedImages]);
 
+    // return {
+    //     state: { imagesToUpload, curatedImages, isUploading },
+    //     actions: { addFiles, removeFile, uploadImages }
+    // };
     return {
-        state: { imagesToUpload, curatedImages, isUploading },
-        actions: { addFiles, removeFile, uploadImages }
+        state: { 
+            imagesToUpload, 
+            curatedImages, 
+            filteredImages,  // Add filtered images
+            isUploading,
+            selectedTags     // Add selected tags
+        },
+        actions: { 
+            addFiles, 
+            removeFile, 
+            uploadImages,
+            filterByTags,    // Add tag filtering
+            clearTagFilter   // Add clear filter
+        }
     };
 }
 

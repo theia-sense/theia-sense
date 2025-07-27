@@ -1,0 +1,159 @@
+.appContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    /*overflow: hidden;*/
+
+    letter-spacing: 0.01em;
+}
+
+.appIntro {
+    font-family: var(--font-secondary);
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-gradient);
+    padding: 0 var(--space-md) var(--space-md) var(--space-md);
+}
+
+.appHeader {
+    text-align: center;
+    padding: 0;
+    color: var(--color-dark);
+    user-select: none;
+    z-index: 10;
+}
+
+    .appHeader h1 {
+        margin: var(--space-lg);
+        font-size: var(--font-size-base);
+        font-weight: 500;
+        letter-spacing: 0.14em;
+        padding: 0;
+    }
+
+.navbar_divider {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    line-height: 0;
+    height: 0;
+    z-index: 10;
+}
+
+.plus_signs {
+    font-size: var(--font-size-base);
+    color: var(--color-muted);
+    transition: transform 0.3s ease;
+}
+
+    .plus-signs:hover {
+        transform: rotate(180deg);
+    }
+
+.divider_line {
+    flex-grow: 1;
+    height: 1px;
+    background-color: var(--color-divider);
+    transform-origin: left center;
+    animation: growLine 3s ease forwards;
+}
+
+@keyframes growLine {
+    from {
+        transform: scaleX(0);
+    }
+
+    to {
+        transform: scaleX(1);
+    }
+}
+
+.appLayout {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-lg);
+    padding: var(--space-lg);
+    background: var(--bg-gradient-inverse);
+    min-height: 90vh;
+}
+
+
+.mainContent {
+    flex: 1;
+    min-width: 0; /* Important to prevent overflow in flexbox layouts */
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+    gap: var(--space-lg);
+    min-height: 90vh;
+}
+
+
+.appFooter {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-md);
+}
+
+
+/* 1024px: Tablet */
+@media (max-width: 1024px) {
+    .appLayout {        
+        gap: var(--space-md);
+        padding: var(--space-md);
+    }
+    .appFooter {        
+        padding: var(--space-md);
+    }
+
+    .mainContent {
+        padding: 0 var(--space-md);
+    }
+
+    .appIntro {
+        padding: 0;
+    }
+}
+
+/* 768px: Large Phones/Small Tablets */
+@media (max-width: 768px) {
+    .appHeader h1 {
+        font-size: var(--font-size-sm-plus); /* 0.875rem */
+        margin: var(--space-md) 0;
+    }
+
+    .navbar_divider {
+        gap: var(--space-sm);
+    }
+
+    .plus_signs {
+        font-size: var(--font-size-sm-plus);
+    }
+
+    .appLayout {
+        flex-direction: column;
+        padding: var(--space-md);
+        gap: var(--space-md);
+    }
+
+    .mainContent {
+        gap: var(--space-md);
+        padding: 0;
+        min-height: 45vh;
+    }
+}
+
+/* 480px: Small Phones */
+@media (max-width: 480px) {
+    
+    .appHeader h1 {
+        font-size: var(--font-size-sm); /* 0.75rem */
+    }
+
+    .mainContent {
+        gap: var(--space-sm);
+    }
+}
+
