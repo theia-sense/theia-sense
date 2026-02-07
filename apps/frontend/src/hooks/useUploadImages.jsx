@@ -147,25 +147,9 @@ export default function useUploadImages() {
         };
     }, [curatedImages]);
 
-    // return {
-    //     state: { imagesToUpload, curatedImages, isUploading },
-    //     actions: { addFiles, removeFile, uploadImages }
-    // };
     return {
-        state: { 
-            imagesToUpload, 
-            curatedImages, 
-            filteredImages,  // Add filtered images
-            isUploading,
-            selectedTags     // Add selected tags
-        },
-        actions: { 
-            addFiles, 
-            removeFile, 
-            uploadImages,
-            filterByTags,    // Add tag filtering
-            clearTagFilter   // Add clear filter
-        }
+        state: { imagesToUpload, curatedImages, filteredImages, isUploading, selectedTags },
+        actions: { addFiles, removeFile, uploadImages, filterByTags, clearTagFilter },
     };
 }
 

@@ -1,6 +1,7 @@
 # FastAPI framework and server
 fastapi
 uvicorn[standard]
+pydantic-settings
 
 # For handling file uploads
 python-multipart

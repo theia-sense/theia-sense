@@ -2,6 +2,8 @@ fastapi
 uvicorn[standard]
 python-multipart
 Pillow
+gunicorn
+pydantic-settings
 
 # Dependencies for the CLIP model
 onnxruntime

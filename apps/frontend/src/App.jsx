@@ -12,13 +12,9 @@ import { useEffect, useRef } from "react";
 
 function App() {
 
-    //const {
-    //    state: { imagesToUpload, curatedImages, isUploading},
-    //    actions: { addFiles, removeFile, uploadImages }
-    //} = useUploadImages();
     const {
-        state: { imagesToUpload, curatedImages, filteredImages, isUploading, selectedTags }, // Step 2: Add relevant state
-        actions: { addFiles, removeFile, uploadImages, filterByTags }                         // Step 2: Add relevant action
+        state: { imagesToUpload, curatedImages, filteredImages, isUploading, selectedTags },
+        actions: { addFiles, removeFile, uploadImages, filterByTags },
     } = useUploadImages();
 
     const galleryRef = useRef(null);
@@ -59,17 +55,13 @@ function App() {
                         {isUploading ? "Finding your best shots..." : `Upload ${imagesToUpload.length} Image(s)`}
                     </button>
                     
-                    {/*<ImageGallery ref={galleryRef} images={curatedImages} />*/}
                     {curatedImages.length > 0 && (
                         <>
-                            {/* Step 3: Add TagFilter */}
                             <TagFilter
                                 images={curatedImages}
                                 onTagFilter={filterByTags}
                                 selectedTags={selectedTags}
                             />
-
-                            {/* Step 4: Use filteredImages instead of curatedImages */}
                             <ImageGallery ref={galleryRef} images={filteredImages} />
                         </>
                     )}

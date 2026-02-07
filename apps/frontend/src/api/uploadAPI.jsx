@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const uploadClient = axios.create({
-    baseURL: "http://localhost:8000",
-    //timeout: 15000,
+    baseURL: import.meta.env.VITE_API_URL || "https://api.rutansh.dev",
+    timeout: 300000,
     headers: {
         "Content-Type": "multipart/form-data"
     }
