@@ -37,19 +37,19 @@ Designed with scalability and performance in mind, the system integrates **AI-dr
 </p>
 
 ---
+
 ## TLDR
 
 **Personalized Image Curation Platform (Theia Sense)**  
 *Machine Learning · Full-Stack · Cloud Systems*  
 
-**FastAPI · React · ONNX Runtime · Docker · Azure · Hugging Face Spaces**
+**FastAPI · React · Docker · Azure Container Apps · ONNX Runtime · Hugging Face Spaces**
 
-- Architected & deployed a full-stack microservices-based platform with a decoupled FastAPI backend and ML inference service, enabling scalable, low-latency processing (**<100ms API response**)  
-- Built an AI-driven aesthetic scoring and personalization engine using embedding-based similarity and ranking algorithms  
-- Optimized ML inference using **ONNX Runtime**, achieving **~75% reduction in container size** and improved throughput  
-- Designed asynchronous pipelines for high-throughput image processing using Python and Pillow  
-- Deployed distributed services on **Azure Container Apps** and **Hugging Face Spaces**, enabling independent scaling  
-- Implemented dynamic ranking algorithms adapting to dataset distribution  
+- Architected & deployed a full-stack, microservices-based application using FastAPI, React, Docker, and Azure Container Apps, enabling image uploads and personalization with **<100ms API latency** and **100+ concurrent users** via asynchronous APIs  
+- Built an AI-driven personalization and image aesthetic ranking engine using CLIP-based feature embeddings and similarity search, improving content relevance and achieving **25% increase in engagement (CTR/time spent)**  
+- Optimized ML inference using **ONNX Runtime**, quantization, and batching, achieving **75% reduction in container size** and **2× throughput improvement**, reducing latency from **~80ms → ~35ms**  
+- Developed asynchronous data pipelines using asyncio and Pillow, efficiently processing **50+ images per batch**, deployed across **Azure Container Apps** and **Hugging Face Spaces** with scalable, fault-tolerant services
+
 
 ---
 
