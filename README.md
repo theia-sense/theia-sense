@@ -19,6 +19,10 @@
 
 Designed with scalability and performance in mind, the system integrates **AI-driven ranking, optimized inference pipelines, and distributed cloud deployment**, enabling real-time curation for user-uploaded images.
 
+<p align="center">
+  <img src="assets/theiasense.gif" alt="Theia Sense" width="800"/>
+</p>
+
 ---
 
 ## Real-World Use Cases
@@ -33,7 +37,7 @@ Designed with scalability and performance in mind, the system integrates **AI-dr
 ## Demo
 
 <p align="center">
-  <img src="assets/demo.gif" alt="Theia Sense Demo" width="800"/>
+  <img src="assets/demo.gif" alt="Demo" width="800"/>
 </p>
 
 ---
